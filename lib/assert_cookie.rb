@@ -16,6 +16,15 @@ module Test
         clean_backtrace do
           cookie = cookies[name.to_s]
           
+          # this plugin has no rails version attached to it, so the following might be actually wrong
+          if cookie.respond_to?(:value)
+            value = cookie.value
+          elsif cookie.is_a?(String)
+            value = cookie
+          else
+            assert false, "Cookie was something unexpected: #{cookie.inspect}"
+          end
+          
           msg = build_message(message, "expected cookie named <?> but it was not found.", name)
           assert_not_nil cookie, msg
   
@@ -23,19 +32,19 @@ module Test
           when options[:value].respond_to?(:call)
             msg = build_message(message,
                     "expected result of value block to be true but it was false.")
-            cookie.value.each do |value|
+            value.each do |value|
               assert(options[:value].call(value), msg)
             end
           when options[:value].respond_to?(:each)
             options[:value].each do |value|
               msg = build_message(message, 
                       "expected cookie value to include <?> but it was not found.", value)
-              assert(cookie.value.include?(value), msg)
+              assert(value.include?(value), msg)
             end
           else
             msg = build_message(message, "expected cookie value to be <?> but it was <?>.",
-                    options[:value], cookie.value)
-            assert(cookie.value.include?(options[:value]), msg)
+                    options[:value], value)
+            assert(value.include?(options[:value]), msg)
           end if options.key?(:value)
 
           assert_call_or_value :path, options, cookie, message
