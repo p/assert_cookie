@@ -1,5 +1,6 @@
-module Test
-  module Unit
+# use three modules to keep indentation in this file
+module Indent
+  module AssertCookie
     module Assertions
       # Custom assertions for cookies
       #
