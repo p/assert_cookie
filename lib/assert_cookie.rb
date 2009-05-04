@@ -66,6 +66,11 @@ module Indent
         assert_block(msg) { cookie.nil? or (cookie.kind_of?(Array) and cookie.blank?) }
       end
       
+      def clear_cookies
+        # or: @integration_session.instance_variable_set("@cookies", {})
+        reset!
+      end
+      
     protected
       def assert_call_or_value(name, options, cookie, message="")
         case
