@@ -63,14 +63,14 @@ module Indent
         cookie = cookies[name.to_s]
         
         msg = build_message(message, "no cookie expected but found <?>.", name)
-        assert_block(msg) { cookie.nil? or (cookie.kind_of?(Array) and cookie.blank?) }
+        assert_block(msg) { cookie.nil? or (cookie.kind_of?(Array) and cookie.blank?) or cookie == '' }
       end
       
       def assert_cookie_set(name, message="")
         cookie = cookies[name.to_s]
         
         msg = build_message(message, "expected cookie named <?> but it was not found.", name)
-        assert_not_nil cookie, msg
+        assert_block(msg) { !(cookie.nil? or (cookie.kind_of?(Array) and cookie.blank?) or cookie == '') }
       end
       
       def clear_cookies
