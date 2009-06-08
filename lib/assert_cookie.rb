@@ -66,6 +66,13 @@ module Indent
         assert_block(msg) { cookie.nil? or (cookie.kind_of?(Array) and cookie.blank?) }
       end
       
+      def assert_cookie_set(name, message="")
+        cookie = cookies[name.to_s]
+        
+        msg = build_message(message, "expected cookie named <?> but it was not found.", name)
+        assert_not_nil cookie, msg
+      end
+      
       def clear_cookies
         # or: @integration_session.instance_variable_set("@cookies", {})
         reset!
