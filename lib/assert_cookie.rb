@@ -36,16 +36,16 @@ module Indent
             value.each do |value|
               assert(options[:value].call(value), msg)
             end
-          when options[:value].respond_to?(:each)
-            options[:value].each do |value|
+          when options[:value].respond_to?(:each) && !options[:value].is_a?(String)
+            options[:value].each do |allowed_value|
               msg = build_message(message, 
-                      "expected cookie value to include <?> but it was not found.", value)
-              assert(value.include?(value), msg)
+                      "expected cookie value to include <?> but it was not found.", allowed_value)
+              assert(value == allowed_value, msg)
             end
           else
             msg = build_message(message, "expected cookie value to be <?> but it was <?>.",
                     options[:value], value)
-            assert(value.include?(options[:value]), msg)
+            assert(value == options[:value], msg)
           end if options.key?(:value)
 
           assert_call_or_value :path, options, cookie, message
