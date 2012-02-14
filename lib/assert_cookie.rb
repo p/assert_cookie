@@ -50,6 +50,10 @@ module Indent
             assert false, "Cookie was something unexpected: #{cookie.inspect}"
           end
           
+          # rails escapes cookies when it sets them, but
+          # does not unescape them when it reads them back
+          value = CGI.unescape(value)
+          
           msg = build_message(message, "expected cookie named <?> but it was not found.", name)
           assert_not_nil cookie, msg
   
