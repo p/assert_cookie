@@ -127,6 +127,7 @@ module Indent
             option_name, option_value = option.strip.split('=')
             options_hash[option_name] = option_value || true
           end
+          value = CGI.unescape(value)
           cookie = ResponseCookie.new(value, options_hash)
           cookies_hash[name.to_s] = cookie
         end
