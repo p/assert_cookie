@@ -1,6 +1,29 @@
 # use three modules to keep indentation in this file
 module Indent
   module AssertCookie
+    class ResponseCookie
+      attr_reader :value, :path, :domain, :expires, :http_only, :secure
+      
+      KEY_MAP = {
+        'path' => 'path',
+        'expires' => 'expires',
+        'HttpOnly' => 'http_only',
+        'secure' => 'secure',
+      }
+      
+      def initialize(value, options={})
+        @value = value
+        options.each do |key, value|
+          target_key = KEY_MAP[key.to_s]
+          if target_key
+            instance_variable_set("@#{target_key}", value)
+          else
+            raise ArgumentError, "Unknown option: #{key}"
+          end
+        end
+      end
+    end
+    
     module Assertions
       # Custom assertions for cookies
       #
@@ -48,6 +71,7 @@ module Indent
             assert(value.include?(options[:value]), msg)
           end if options.key?(:value)
 
+          cookie = cookie(name)
           assert_call_or_value :path, options, cookie, message
           assert_call_or_value :domain, options, cookie, message
           assert_call_or_value :expires, options, cookie, message
@@ -79,6 +103,32 @@ module Indent
       end
       
     protected
+      def cookie(name)
+        cookies = parse_cookies
+        cookies[name.to_s]
+      end
+      
+      def parse_cookies
+        # rails discards everything but cookie value for integration session
+        # amazing
+        # do the parsing ourselves
+        cookies = @response.headers['Set-Cookie']
+        cookies_hash = {}
+        cookies = cookies.to_s.split("\n") unless cookies.is_a?(Array)
+        cookies.each do |cookie|
+          name, value, options = cookie.match(/^([^=]*)=([^;]*);(.*)/)[1,3]
+          options = options.split(';')
+          options_hash = {}
+          options.each do |option|
+            option_name, option_value = option.strip.split('=')
+            options_hash[option_name] = option_value || true
+          end
+          cookie = ResponseCookie.new(value, options_hash)
+          cookies_hash[name.to_s] = cookie
+        end
+        cookies_hash
+      end
+      
       def assert_call_or_value(name, options, cookie, message="")
         case
         when options[name].respond_to?(:call)
