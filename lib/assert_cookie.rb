@@ -5,6 +5,7 @@ module Indent
       attr_reader :value, :path, :domain, :expires, :http_only, :secure
       
       KEY_MAP = {
+        'domain' => 'domain',
         'path' => 'path',
         'expires' => 'expires',
         'HttpOnly' => 'http_only',
