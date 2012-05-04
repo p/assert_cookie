@@ -50,6 +50,10 @@ class AssertCookieTest < Test::Unit::TestCase
     assert_fail { assert_cookie :pies, :value => 'mince meat' }
   end
   
+  def test_assertion_cookie_value_should_fail_when_value_is_partial
+    assert_fail { assert_cookie :apples, :value => 'pie' }
+  end
+  
   def test_assertion_cookie_value_should_pass_when_value_from_array_found_in_cookie_values
     assert_pass { assert_cookie :pies, :value => ['apple', 'lemon', 'strawberry'] }
   end
