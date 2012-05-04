@@ -105,15 +105,18 @@ module Indent
       
     protected
       def cookie(name)
-        cookies = parse_cookies
-        cookies[name.to_s]
+        if @response
+          parsed_cookies = parse_cookies(@response.headers['Set-Cookie'])
+          parsed_cookies[name.to_s]
+        else
+          convert_cookie(cookies[name.to_s])
+        end
       end
       
-      def parse_cookies
+      def parse_cookies(cookies)
         # rails discards everything but cookie value for integration session
         # amazing
         # do the parsing ourselves
-        cookies = @response.headers['Set-Cookie']
         cookies_hash = {}
         cookies = cookies.to_s.split("\n") unless cookies.is_a?(Array)
         cookies.each do |cookie|
@@ -128,6 +131,18 @@ module Indent
           cookies_hash[name.to_s] = cookie
         end
         cookies_hash
+      end
+      
+      def convert_cookie(cookie)
+        options_hash = {
+          'domain' => cookie.domain,
+          'path' => cookie.path,
+          'expires' => cookie.expires,
+          # HttpOnly is not supported by cgi module
+          'HttpOnly' => nil,
+          'secure' => cookie.secure,
+        }
+        ResponseCookie.new(cookie, options_hash)
       end
       
       def assert_call_or_value(name, options, cookie, message="")
