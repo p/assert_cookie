@@ -72,12 +72,24 @@ module AssertCookie
           options[:value].each do |required_value|
             msg = build_message(message, 
                     "expected cookie value to include <?> but it was not found.", required_value)
-            assert(value.include?(required_value), msg)
+            if value.is_a?(Array)
+              # test suite takes this path
+              assert(value.include?(required_value), msg)
+            else
+              # rails 2.3 integration tests?
+              assert(value == required_value, msg)
+            end
           end
         else
           msg = build_message(message, "expected cookie value to be <?> but it was <?>.",
                   options[:value], value)
-          assert(value.include?(options[:value]), msg)
+          if value.is_a?(Array)
+            # test suite takes this path
+            assert(value.include?(options[:value]), msg)
+          else
+            # rails 2.3 integration tests?
+            assert(value == options[:value], msg)
+          end
         end if options.key?(:value)
 
         cookie = full_cookie(name)
