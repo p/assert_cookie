@@ -39,7 +39,7 @@ module Indent
       #     :secure => true   
       def assert_cookie(name, options={}, message="")
         clean_backtrace do
-          cookie = cookies[name.to_s]
+        cookie = get_cookie(name)
           
           # this plugin has no rails version attached to it, so the following might be actually wrong
           if cookie.respond_to?(:value)
@@ -82,7 +82,7 @@ module Indent
             assert(value.include?(options[:value]), msg)
           end if options.key?(:value)
 
-          cookie = cookie(name)
+          cookie = full_cookie(name)
           assert_call_or_value :path, options, cookie, message
           assert_call_or_value :domain, options, cookie, message
           assert_call_or_value :expires, options, cookie, message
@@ -95,14 +95,14 @@ module Indent
       #
       # assert_no_cookie :chocolate
       def assert_no_cookie(name, message="")
-        cookie = cookies[name.to_s]
+        cookie = get_cookie(name)
         
         msg = build_message(message, "no cookie expected but found <?>.", name)
         assert_block(msg) { cookie.nil? or (cookie.kind_of?(Array) and cookie.blank?) or cookie == '' }
       end
       
       def assert_cookie_set(name, message="")
-        cookie = cookies[name.to_s]
+        cookie = get_cookie(name)
         
         msg = build_message(message, "expected cookie named <?> but it was not found.", name)
         assert_block(msg) { !(cookie.nil? or (cookie.kind_of?(Array) and cookie.blank?) or cookie == '') }
@@ -114,13 +114,17 @@ module Indent
       end
       
     protected
-      def cookie(name)
+      def full_cookie(name)
         if @response
           parsed_cookies = parse_cookies(@response.headers['Set-Cookie'])
           parsed_cookies[name.to_s]
         else
           convert_cookie(cookies[name.to_s])
         end
+      end
+      
+      def get_cookie(name)
+        cookies[name.to_s]
       end
       
       def parse_cookies(cookies)
