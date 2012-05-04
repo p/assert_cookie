@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/test_helper'
 
 class AssertCookieTest < Test::Unit::TestCase
-  include Indent::AssertCookie::Assertions
+  include AssertCookie::Assertions
   
   def setup
     cookies['apples']       = CGI::Cookie.new 'name' => 'apples', 'value' => 'pies'
