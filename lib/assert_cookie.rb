@@ -58,7 +58,8 @@ module AssertCookie
         elsif cookie.is_a?(String)
           value = cookie
         else
-          assert false, "Cookie was something unexpected: #{cookie.inspect}"
+          msg = build_message(message, "Cookie was something unexpected: #{cookie.inspect}")
+          assert false, msg
         end
         
         # rails escapes cookies when it sets them, but
