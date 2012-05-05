@@ -34,8 +34,21 @@ module AssertCookie
     #   assert_cookie :delight, :value => 'yum'
     #
     #   assert_cookie :secret, :path => lambda { |path| path =~ /secret/ }, 
-    #     :secure => true   
-    def assert_cookie(name, options={}, message="")
+    #     :secure => true
+    #
+    # With a custom message:
+    #
+    #   assert_cookie :pass, 'Cookie was not set'
+    #
+    #   assert_cookie :pass, :value => 'yum', 'Cookie was not set with the correct value'
+    def assert_cookie(name, *args)
+      if args.last.is_a?(String)
+        message = args.pop
+      else
+        message = nil
+      end
+      options = args.pop || {}
+      
       clean_backtrace do
       cookie = get_cookie(name)
         
